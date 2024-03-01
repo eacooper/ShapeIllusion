@@ -3,5 +3,8 @@ Data and code associated with the manuscript "How small changes to one eye’s r
 
 The assets are organized into two folders:
 
-*MATLAB_Figures_and_data* contains the data from both studies and scripts for reproducing the figures in the paper
-*Statistical_analysis_R_studio* contains R scripts for performing all statistical analyses
+**MATLAB_Figures_and_data** contains the data from both studies and scripts for reproducing the figures in the paper
+
+--use the script RunMe.m to load data and make all figures
+
+**Statistical_analysis_R_studio** contains R scripts for performing all statistical analyses
