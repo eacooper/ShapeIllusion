@@ -8,3 +8,5 @@ The assets are organized into two folders:
 --use the script RunMe.m to load data and make all figures
 
 **Statistical_analysis_R_studio** contains R scripts for performing all statistical analyses
+
+--use the script RunMe.rmd to load data and run all stats
