@@ -1,0 +1,165 @@
+%This script turns the data into a csv for data analysis in r
+
+%finding path to statistical analysis folder
+current_path = pwd;
+parent_path = fileparts(current_path);
+
+if ismac
+    csv_save_path = strcat(parent_path,'/Statistical_analysis_R_studio/data/');
+else
+    csv_save_path = strcat(parent_path,'\Statistical_analysis_R_studio\data\');
+end
+
+
+%% Data from the simulated objects experiment
+
+%Export data from slant task used to calculate correlation (r) between magnification and
+%response
+
+% column vectors indexing the subject number and the magnification amount
+sub_num = repelem(1:20,1,9)'; 
+mag_num = repmat([0,3,-3,6,-6,9,-9,12,-12],1,20)';
+
+%Horizontal
+%add the 0 value into the correlation by grabbing it from the uniform mag condition
+slantPercievedFlatH_w0 = slantPercievedFlatH; %rename so that I can reassign
+slantPercievedFlatH_w0(:,1,:) = slantPercievedFlatU(:,1,:);
+
+%create a column vector with the slants
+slantH_col = reshape(mean(slantPercievedFlatH_w0),[20*9,1]);
+
+% put into a table and save
+r_format_slantH = array2table([sub_num,mag_num,slantH_col],...
+    'VariableNames',{'subj','mag','resp'});
+writetable(r_format_slantH,strcat(csv_save_path,'r_format_slantH.csv'));
+
+
+%Vertical
+%add the 0 value into the correlation by grabbing it from the uniform mag condition
+slantPercievedFlatV_w0 = slantPercievedFlatV; %rename so that I can reassign
+slantPercievedFlatV_w0(:,1,:) = slantPercievedFlatU(:,1,:);
+
+%create a column vector with the slants
+slantV_col = reshape(mean(slantPercievedFlatV_w0),[20*9,1]);
+
+% put into a table and save
+r_format_slantV = array2table([sub_num,mag_num,slantV_col],...
+    'VariableNames',{'subj','mag','resp'});
+writetable(r_format_slantV,strcat(csv_save_path,'r_format_slantV.csv'));
+
+
+% SHAPE ESTIMATES
+
+% column vector of magnification levels used in the shape task
+mag_num = repmat([-4:4],1,20)';
+
+%horizontal
+shapeH1 = RectRatioRightOverLeftH(:,2:9,:);
+shapeH1 = [RectRatioRightOverLeftU(:,1,:),shapeH1]; % Add the 0% onto the data for horizontal and vertical
+shapeH1 = mean(shapeH1(:,indexorder_9,:),1); %take the mean across trials and reorder to [-4,-3,-2,-1,0,1,2,3,4];
+shapeH1_col = reshape(shapeH1,[20*9,1]); %reshape into a column. 
+
+%vertical
+shapeV1 = RectRatioRightOverLeftV(:,2:9,:);
+shapeV1 = [RectRatioRightOverLeftU(:,1,:),shapeV1]; 
+shapeV1 = mean(shapeV1(:,indexorder_9,:),1); 
+shapeV1_col = reshape(shapeV1,[20*9,1]); 
+
+%uniform
+shapeU1 = mean(RectRatioRightOverLeftU(:,indexorder_9,:),1); 
+shapeU1_col = reshape(shapeU1,[20*9,1]); 
+
+%reshape shape predictions derived from slant responses
+estU = reshape(shape_estU,[20*9,1]);
+estH = reshape(shape_estH,[20*9,1]);
+estV = reshape(shape_estV,[20*9,1]);
+
+% format as tables and save
+ShapeH_actual_and_fit_t = array2table([sub_num,mag_num,shapeH1_col,estH],...
+    'VariableNames',{'subj','mag','resp','model'});
+writetable(ShapeH_actual_and_fit_t,strcat(csv_save_path,'ShapeH_actual_and_fit.csv'));
+
+ShapeV_actual_and_fit_t = array2table([sub_num,mag_num,shapeV1_col,estV],...
+    'VariableNames',{'subj','mag','resp','model'});
+writetable(ShapeV_actual_and_fit_t,strcat(csv_save_path,'ShapeV_actual_and_fit.csv'));
+
+ShapeU_actual_and_fit_t = array2table([sub_num,mag_num,shapeU1_col,estU],...
+    'VariableNames',{'subj','mag','resp','model'});
+writetable(ShapeU_actual_and_fit_t,strcat(csv_save_path,'ShapeU_actual_and_fit.csv'));
+
+
+
+%% Data from the real objects experiment
+
+% table with shape ration responses concatenated
+ShapeRatio = [SR_exp_square(1:SubjNum),SR_cont_square(1:SubjNum),SR_exp_phone(1:SubjNum),SR_cont_phone(1:SubjNum)];
+ShapeRatio_t = array2table(ShapeRatio,'VariableNames', {'SR_exp_square','SR_cont_square','SR_exp_phone','SR_cont_phone'});
+writetable(ShapeRatio_t,strcat(csv_save_path,'ShapeRatio.csv'));
+
+%shape ratio ANOVA format
+
+% subject number
+subj_list = repmat([1:SubjNum]',4,1);
+
+% lenses ( 2 = experimental, 1 = control)
+lens_list = [repelem([2]',SubjNum,1);repelem([1]',SubjNum,1);repelem([2]',SubjNum,1);repelem([1]',SubjNum,1)];
+
+% object ( 1 = square, 2 = phone)
+obj_list = [repelem([1]',SubjNum,1);repelem([1]',SubjNum,1);repelem([2]',SubjNum,1);repelem([2]',SubjNum,1)];
+
+% data 
+ShapeRatio_anova = [SR_exp_square(1:SubjNum);SR_cont_square(1:SubjNum);SR_exp_phone(1:SubjNum);SR_cont_phone(1:SubjNum)];
+
+% format and save table
+ShapeRatio_anova_t = array2table([subj_list,lens_list,obj_list,ShapeRatio_anova],'VariableNames', {'subj','lens','obj','resp'});
+writetable(ShapeRatio_anova_t,strcat(csv_save_path,'ShapeRatio_anova.csv'));
+
+%Percent of people who percieve a slant
+SlantYN = [SL_exp_square(1:SubjNum),SL_cont_square(1:SubjNum),SL_exp_phone(1:SubjNum),SL_cont_phone(1:SubjNum)];
+SlantYN_t = array2table(SlantYN,'VariableNames', {'SL_exp_square','SL_cont_square','SL_exp_phone','SL_cont_phone'});
+writetable(SlantYN_t,strcat(csv_save_path,'SlantYN.csv'));
+
+%Percent slant in a specific direction - all experimental conditions
+% reformat data to indicate with a 1 if the object was slanted to in the specified direction.
+
+%slant to the right square
+SLr_exp_square = SD_exp_square(1:SubjNum);
+SLr_exp_square(SLr_exp_square==2) = 0;  %replace the 2s with zeros
+%slant to the left square
+SLl_exp_square = SD_exp_square(1:SubjNum);
+SLl_exp_square(SLl_exp_square==1) = 0; %replace the 1s with zeros
+SLl_exp_square(SLl_exp_square==2) = 1; %replace the 2s with 1s
+%slant to the right phone
+SLr_exp_phone = SD_exp_phone(1:SubjNum);
+SLr_exp_phone(SLr_exp_phone==2) = 0; %replace the 2s with 0s
+%slant to the left phone
+SLl_exp_phone = SD_exp_phone(1:SubjNum);
+SLl_exp_phone(SLl_exp_phone==1) = 0; %make the 1s equal to 0s
+SLl_exp_phone(SLl_exp_phone==2) = 1; %make the 2s equal to 1s
+
+% concatenate and save as a table
+SlantD = [SLr_exp_square,SLl_exp_square,SLr_exp_phone,SLl_exp_phone];
+SlantD_t = array2table(SlantD,'VariableNames', {'SLr_exp_square','SLl_exp_square','SLr_exp_phone','SLl_exp_phone'});
+writetable(SlantD_t,strcat(csv_save_path,'SlantD.csv'));
+
+
+%Percent slant in a specific direction - all control conditions
+%indicate with a 1 if the object was slanted to in the specified direction.
+%slant to the right square
+SLr_cont_square = SD_cont_square(1:SubjNum);
+SLr_cont_square(SLr_cont_square==2) = 0;  %replace the 2s with zeros
+%slant to the left square
+SLl_cont_square = SD_cont_square(1:SubjNum);
+SLl_cont_square(SLl_cont_square==1) = 0; %replace the 1s with zeros
+SLl_cont_square(SLl_cont_square==2) = 1; %replace the 2s with 1s
+%slant to the right phone
+SLr_cont_phone = SD_cont_phone(1:SubjNum);
+SLr_cont_phone(SLr_cont_phone==2) = 0; %replace the 2s with 0s
+%slant to the left phone
+SLl_cont_phone = SD_cont_phone(1:SubjNum);
+SLl_cont_phone(SLl_cont_phone==1) = 0; %make the 1s equal to 0s
+SLl_cont_phone(SLl_cont_phone==2) = 1; %make the 2s equal to 1s
+
+SlantD_control = [SLr_cont_square,SLl_cont_square,SLr_cont_phone,SLl_cont_phone];
+SlantD_control_t = array2table(SlantD_control,'VariableNames', {'SLr_cont_square','SLl_cont_square','SLr_cont_phone','SLl_cont_phone'});
+writetable(SlantD_control_t,strcat(csv_save_path,'/SlantD_control_cond.csv'));

@@ -1,0 +1,53 @@
+%Figure 1
+
+%Calculations needed for plotting
+SubjNum = 20;
+
+%calculate 95% CI
+SR_cont_square_ci = 1.96 .* std(SR_cont_square) ./ sqrt(SubjNum);
+SR_exp_square_ci  = 1.96 .* std(SR_exp_square) ./ sqrt(SubjNum);
+SR_cont_phone_ci  = 1.96 .* std(SR_cont_phone) ./ sqrt(SubjNum);
+SR_exp_phone_ci   = 1.96 .* std(SR_exp_phone) ./ sqrt(SubjNum);
+
+
+% Plotting
+newsubplot   = @(m,n,p) subtightplot (m, n, p, [0.01 0.05], [0.1 0.01], [0.1 0.01]);
+%plotting variables
+linewidth_er = 1;
+exp_color    = [0.8500, 0.3250, 0.0980];
+cont_color   = [0, 0.4470, 0.7410];
+exp_color_2  = [0.8500, 0.3250, 0.0980].*1.17;
+cont_color_2 = [0, 0.4470, 0.7410].*1.17;
+markersize   = 20; %for the swarmchart
+
+f1 = figure; hold on;
+f1.Position  = [100 40 915 405];
+xlim([0,6]);
+ref          = refline(0,1); 
+ref.Color    = 'k';
+
+% Phone
+exp = bar(1,mean(SR_exp_phone),'FaceColor',exp_color); hold on;
+Er  = errorbar(1,mean(SR_exp_phone),-SR_exp_phone_ci,SR_exp_phone_ci); Er.Color=[0 0 0]; Er.LineStyle = "none"; Er.LineWidth = linewidth_er;
+swarmchart(ones(length(SR_exp_phone),1).*1,SR_exp_phone,markersize,'k','filled')
+
+cont = bar(2,mean(SR_cont_phone),'FaceColor',cont_color);
+Er   = errorbar(2,mean(SR_cont_phone),-SR_cont_phone_ci,SR_cont_phone_ci); Er.Color=[0 0 0]; Er.LineStyle = "none"; Er.LineWidth = linewidth_er;
+swarmchart(ones(length(SR_cont_phone),1).*2,SR_cont_phone,markersize,'k','filled')
+
+ylim([0.96,1.32]);
+ylabel('Shape Ratio (right side / left side)');
+set(gca,'box','on');
+
+
+% Square
+bar(4,mean(SR_exp_square),'FaceColor',exp_color);
+Er = errorbar(4,mean(SR_exp_square),-SR_exp_square_ci,SR_exp_square_ci); Er.Color=[0 0 0]; Er.LineStyle = "none"; Er.LineWidth = linewidth_er;
+swarmchart(ones(length(SR_exp_square),1).*4,SR_exp_square,markersize,'k','filled')
+
+bar(5,mean(SR_cont_square),'FaceColor',cont_color);
+Er = errorbar(5,mean(SR_cont_square),-SR_cont_square_ci,SR_cont_square_ci); Er.Color=[0 0 0]; Er.LineStyle = "none"; Er.LineWidth = linewidth_er;
+swarmchart(ones(length(SR_cont_square),1).*5,SR_cont_square,markersize,'k','filled')
+xticks([1.5,4.5]);
+xticklabels({'Phone','Black Square'});
+legend([exp,cont],'Experimental lenses','Control lenses')
