@@ -1,5 +1,6 @@
 # ShapeIllusion
-Data and code associated with the manuscript "How small changes to one eye’s retinal image can transform the perceived shape of a very familiar object"
+Data and code associated with the manuscript "How small changes to one eye’s retinal image can transform the perceived shape of a very familiar object" 
+McLean, Erkelens, & Cooper PNAS (2024)
 
 The assets are organized into two folders:
 
