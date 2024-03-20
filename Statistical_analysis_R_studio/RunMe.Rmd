@@ -81,14 +81,9 @@ mcnemar_test = function(a, b) {
     
     this_test_tidy_chi = rename(this_test_tidy, chi_sqared = statistic) #rename the statistic chi_squared
     
-    #effect size - odds ratio #there is not a good consensus on the best effect 
-    #size measure
-    # It is the control conditions divided by experimental. Except when the experimental
-    # and control conditions are directly compared, then the square condition is 
-    # divided by the phone condition.
-    Odds_ratio = (sum(a) / sum(b)) #ratio of the people who said yes to Lens1 vs Lens2
-  
-  
+    #effect size - odds ratio 
+    Odds_ratio = (sum(a) / sum(b))
+
    #add columns to store the effect size
    mutate(this_test_tidy_chi, Odds_ratio = Odds_ratio) 
   
@@ -160,12 +155,13 @@ run_ttest_test <- function (mstr1, mstr2, data) {
     select(Comparison,t,df,Cohens_d,"Original P Value" = p.value) #keeps only variables mentioned
 }
 
+
 ############## FUNCTION RUNS AN UNPAIRD T TEST ##########################
 
 # T-tests and effect size (Cohan's d)
 make_unpaired_ttest_table = function(a, b, mstr1,mstr2) {
   
-  this_test = t.test(a,b,paired = FALSE, alterative = "two.sided")
+  this_test = t.test(a)
   
   this_test_tidy   = tidy(this_test) 
   this_test_tidy2 = rename(this_test_tidy, t = statistic, df = parameter)  
@@ -198,16 +194,15 @@ run_unpaired_ttest_test <- function (mstr1, mstr2, data) {
   
   test_out = make_unpaired_ttest_table(data[,mstr1], data[,mstr2], mstr1, mstr2)  #run previous function that runs t test 
   
-  mutate(test_out, Comparison = str_c(mstr1, " vs ", mstr2)) %>% #add column with comparison
+  mutate(test_out, Comparison = str_c(mstr1)) %>% #add column with comparison
     
     select(Comparison,t,df,Cohens_d,"Original P Value" = p.value) #keeps only variables mentioned
 }
 
 
-
 #################### FUNCTION THAT CALCULATES R^2 
 
-calculate_r2 = function(thisdata,freeparameter){
+calculate_r2 = function(thisdata){
   
    subj_vector = unique(thisdata$subj)# vector of subj numbers
   
@@ -220,7 +215,6 @@ calculate_r2 = function(thisdata,freeparameter){
     thissubjdata = subset(thisdata, subj==thissubj)
     
     #calculate r^2 for one subject
-    #we will only use the r^2 from this data and not the r^2 adjusted.
     results.lm = lm(resp ~ model, data=thissubjdata) #calculates 
     r_squared = summary(results.lm)$r.squared #r squared
     
@@ -558,7 +552,7 @@ map2_df(
 
 ```
 
-### Shape effect vs. the gometric shape estimates
+### Shape effect vs. the geometric shape estimates
 ### estimates fit with a polynomial
 ## r2 for estimates fit with a polynomial
 
@@ -568,16 +562,13 @@ map2_df(
 ## and uncorrected r^2 values (but it does not print the values)
 
 #UNIFORM
-freeparameter = 0 #no free parameter just calculating r^2
-output_fit_shapeU = calculate_r2(ShapeU_actual_and_fit,freeparameter) 
+output_fit_shapeU = calculate_r2(ShapeU_actual_and_fit) 
 
 #HORIZONTAL
-freeparameter = 0
-output_fit_shapeH = calculate_r2(ShapeH_actual_and_fit,freeparameter)
+output_fit_shapeH = calculate_r2(ShapeH_actual_and_fit)
 
 #VERTICAL
-freeparameter = 0
-output_fit_shapeV = calculate_r2(ShapeV_actual_and_fit,freeparameter) 
+output_fit_shapeV = calculate_r2(ShapeV_actual_and_fit) 
 
 
 # reformat model data frames so that the corrected r^2 values are all in the same 
